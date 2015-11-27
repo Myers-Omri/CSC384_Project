@@ -48,7 +48,7 @@ def create_sat_tuples(var_list,shift,nWorkers):
             list_all_comb.pop(i)
     return tuple(list_all_comb)
 
-def make_constraints(csp_obj, vars_mat, nWorkersList):
+def make_constraints(csp_obj, vars_mat, nWorkersMat):
     '''
 
     :param csp_obj:
@@ -71,7 +71,7 @@ def make_constraints(csp_obj, vars_mat, nWorkersList):
                     cur_con_var_list.append(v)
             name = 'S{}D{}'.format(s, d)
             new_con = Constraint(name, cur_con_var_list)
-            sat_tuples = create_sat_tuples(cur_con_var_list,s,nWorkersList[d][s])
+            sat_tuples = create_sat_tuples(cur_con_var_list,s,nWorkersMat[d][s])
             new_con.add_satisfying_tuples(sat_tuples)
             constraints_list.append(new_con)
             csp_obj.add_constraint(new_con)
@@ -92,7 +92,7 @@ def make_constraints(csp_obj, vars_mat, nWorkersList):
 #input:
 # @ employees_availability: list of employees - availability matrix for every one
 # @ man_req: for every shift the amount of people needed
-# @ special_const
+# @ special_conditions : matrix 7X3 that special_conditions[d][s] is the num of workers required at day d in shift s.
 #
 
 def create_model(store, availabilities, special_conditions ):  #employees_availability, man_req, special_const  ):
