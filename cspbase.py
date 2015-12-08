@@ -522,7 +522,7 @@ class BT:
         cons = None
         if self.TRACE:
             print('  ' * level, "bt_recurse level ", level)
-        if (time.process_time() - stime) > 10.0:
+        if (time.process_time() - stime) > 100.0:
             stime = 0
             return False, None
         if not self.unasgn_vars:

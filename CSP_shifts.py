@@ -385,13 +385,14 @@ def test_daily(store):
 
 
 if __name__ == '__main__':
-    import run_store
+    import run_store, random
     c_date = run_store.date.today()
     c_month = c_date.month
     # c_week_day = c_date.weekday()
     # date = (datetime.month, datetime.day)
-    forecast = 'rainy'
-    n_workers_table = run_store.total_workers_for(c_month, forecast, -1)
+    forecast = ['rainy', 'sunny', 'snowy']
+    nw=10
+    n_workers_table = run_store.total_workers_for(c_month, forecast, nw)
     print(n_workers_table)
     n_emp = max([sum(s) for s in n_workers_table])
     print(n_emp)
@@ -404,7 +405,7 @@ if __name__ == '__main__':
     for a in store.get_all_employees():
         print(a.id, "can work on:",[(d[1:]) for d in a.available])
 
-    # run_solver('GAC', store)
+    run_solver('GAC', store)
     # print (issues_list)
     test_daily(store)
     # arr = [[(1,2)]*7]*3

@@ -5,7 +5,7 @@ from retailer import *
 import time
 from datetime import datetime,date
 
-def get_day_predict(c_month,c_week_day, forecast):
+def get_day_predict(c_month,c_week_day, forecast, n):
     from math import ceil
     factor = 1
     if c_month in [12,1,2]:
@@ -14,15 +14,21 @@ def get_day_predict(c_month,c_week_day, forecast):
         factor*=1.5
     if forecast in ['sunny', 'snowy']:
         factor*=1.2
-    return int(ceil(3 * factor))
+    if forecast in ['rainy']:
+        factor*=0.5
+    nn = int(ceil(n/6.0 * factor))
+    if nn == 0 or nn==1:
+        return 2
+    return nn
 
-def total_workers_for(c_month, forecast, f=1):
+def total_workers_for(c_month, forecast,n=10, f=1):
+    import random
     if f == -1:
         return [[1,2,1],[1,1,3],[2,1,1],[1,1,1],[1,1,1],[1,3,1],[1,5,1]]
     total_pred= []
     for d in range(6):
-
-        s_pred = get_day_predict(c_month,d, forecast)
+        f = random.choice(forecast)
+        s_pred = get_day_predict(c_month,d,  f, n-3)
         daily_pred = [s_pred-1, s_pred, s_pred-1]
         total_pred.append(daily_pred)
 
