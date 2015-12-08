@@ -360,10 +360,16 @@ class CSP:
             print(v, " = ", v.get_assigned_value(), "    ", end='')
         print("")
 
+    def get_soln(self):
+        var_list_vals = []
+        for v in self.vars:
+           var_list_vals.append((v, v.get_assigned_value()))
+        return var_list_vals
+
 ########################################################
 # Backtracking Routine                                 #
 ########################################################
-
+global stime
 class BT:
     '''use a class to encapsulate things like statistics
        and bookeeping for pruning/unpruning variabel domains
@@ -372,7 +378,7 @@ class BT:
        that objects's bt_search routine with the right
        kind or propagator function to obtain plain backtracking
        forward-checking or gac'''
-
+    global stime
     def __init__(self, csp):
         '''csp == CSP object specifying the CSP to be solved'''
 
@@ -469,7 +475,8 @@ class BT:
 
            NOTE propagator SHOULD NOT prune a value that has already been 
            pruned! Nor should it prune a value twice'''
-
+        global stime
+        cons = None
         self.clear_stats()
         stime = time.process_time()
 
@@ -480,7 +487,7 @@ class BT:
             if not v.is_assigned():
                 self.unasgn_vars.append(v)
 
-        status, prunings = propagator(self.csp) #initial propagate no assigned variables.
+        status, prunings, cons = propagator(self.csp) #initial propagate no assigned variables.
         self.nPrunings = self.nPrunings + len(prunings)
 
         if self.TRACE:
@@ -491,15 +498,17 @@ class BT:
             print("CSP{} detected contradiction at root".format(
                 self.csp.name))
         else:
-            status = self.bt_recurse(propagator, 1)   #now do recursive search
+            status, cons = self.bt_recurse(propagator, 1)   #now do recursive search
 
 
         self.restoreValues(prunings)
         if status == False:
             print("CSP{} unsolved. Has no solutions".format(self.csp.name))
+            return status, cons
         if status == True:
             print("CSP {} solved. CPU Time used = {}".format(self.csp.name,
                                                              time.process_time() - stime))
+            return status, cons
         if self.TRACE:
             self.csp.print_soln()
 
@@ -509,13 +518,16 @@ class BT:
     def bt_recurse(self, propagator, level):
         '''Return true if found solution. False if still need to search.
            If top level returns false--> no solution'''
-
+        global stime
+        cons = None
         if self.TRACE:
             print('  ' * level, "bt_recurse level ", level)
-           
+        if (time.process_time() - stime) > 10.0:
+            stime = 0
+            return False, None
         if not self.unasgn_vars:
             #all variables assigned
-            return True
+            return True, None
         else:
             var = self.extractMRVvar()
             if self.TRACE:
@@ -529,7 +541,7 @@ class BT:
                 var.assign(val)
                 self.nDecisions = self.nDecisions+1
 
-                status, prunings = propagator(self.csp, var)
+                status, prunings, cons = propagator(self.csp, var)
                 self.nPrunings = self.nPrunings + len(prunings)
 
                 if self.TRACE:
@@ -537,14 +549,17 @@ class BT:
                     print('  ' * level, "bt_recurse prop pruned = ", prunings)
 
                 if status:
-                    if self.bt_recurse(propagator, level+1):
-                        return True
 
+                    # if self.bt_recurse(propagator, level+1):
+                    #     return True
+                    res, cons = self.bt_recurse(propagator, level+1)
+                    if res :
+                        return True, cons
                 if self.TRACE:
                     print('  ' * level, "bt_recurse restoring ", prunings)
                 self.restoreValues(prunings)
                 var.unassign()
 
             self.restoreUnasgnVar(var)
-            return False
+            return False, cons
 

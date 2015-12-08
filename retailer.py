@@ -10,12 +10,12 @@ class ShopEmployee:
    details about the employee: name, employee_id, phone, experience, positions
    will hold the experience and positions in the store class
    '''
-    def __init__(self, name, employee_id, legal_positions=[], phone=None, experience=0):
+    def __init__(self, name, employee_id, phone=None, experience=0):
         self.name = name
-        self.employee_id = employee_id
+        self.id = employee_id
         self.phone = phone
         self.experience = experience
-        self.poss = legal_positions
+        self.available = []
         # for p in legal_positions:
         #     self.poss.append(p)
         self.assigned = [0,0,0,0,0,0,0]
@@ -25,12 +25,13 @@ class ShopEmployee:
         self.assigned[day] = 1
 
     def set_availability(self, shifts):
-        self.available_on = shifts
+        for s in shifts:
+            self.available.append(s)
 
     def add_position(self, pos):
-        self.poss.append(pos)
+        self.available.append(pos)
 
-    def update_eperience(self, new_exp):
+    def update_experience(self, new_exp):
         self.experience = new_exp
 
 
@@ -46,4 +47,26 @@ class Store:
     def __init__(self, store_name, employee_list):
         self.name = store_name
         self.employees = employee_list
+        self.n_workers_table = [[1,1,1],[1,1,1],[1,1,1],[1,1,1],[1,1,1],[1,1,1],[1,1,1]]
+
+    def add_employee(self, emp):
+        for e in emp:
+            self.employees.append(e)
+
+    def update_nworkers(self, u_tuple):
+        d,s,n = u_tuple
+        self.n_workers_table[d][s] = n
+
+    def get_all_employees(self):
+        return self.employees
+
+    def get_emp_by_id(self, id):
+        for i in self.employees:
+            if i.id == id:
+                return i
+
+
+
+
+
 

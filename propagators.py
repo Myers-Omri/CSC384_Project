@@ -130,6 +130,7 @@ def prop_FC(csp, newVar=None):
 
 
 def GAC_Enforce(csp, GAC_queue):
+
     cons_queue = []
     for c in GAC_queue:
         cons_queue.append(c)
@@ -148,13 +149,13 @@ def GAC_Enforce(csp, GAC_queue):
 
                     if v.cur_domain_size() == 0:
                         cons_queue.clear()
-                        return DWO, pruns
+                        return DWO, pruns , (c,v)
                     else:
                         tcons = csp.get_cons_with_var(v)
                         for tc in tcons:
                             if tc not in cons_queue:
                                 cons_queue.append(tc)
-    return OK, pruns
+    return OK, pruns, None
 
 
 def prop_GAC(csp, newVar=None):  # checked V
@@ -163,8 +164,8 @@ def prop_GAC(csp, newVar=None):  # checked V
        constraints containing newVar on GAC Queue'''
 
     if not newVar:
-        res, tpruns = GAC_Enforce(csp, csp.get_all_cons())
+        res, tpruns, cons = GAC_Enforce(csp, csp.get_all_cons())
     else:
         GAC_queue = csp.get_cons_with_var(newVar)
-        res, tpruns = GAC_Enforce(csp, GAC_queue)
-    return res, tpruns
+        res, tpruns, cons = GAC_Enforce(csp, GAC_queue)
+    return res, tpruns, cons
