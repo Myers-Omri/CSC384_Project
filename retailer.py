@@ -10,7 +10,7 @@ class ShopEmployee:
    details about the employee: name, employee_id, phone, experience, positions
    will hold the experience and positions in the store class
    '''
-    def __init__(self, name, employee_id, phone=None, experience=0):
+    def __init__(self, name, employee_id, phone=None, experience=True):
         self.name = name
         self.id = employee_id
         self.phone = phone
@@ -19,6 +19,7 @@ class ShopEmployee:
         # for p in legal_positions:
         #     self.poss.append(p)
         self.assigned = [0,0,0,0,0,0,0]
+
 
 
     def assign(self, day):
@@ -44,10 +45,10 @@ class Store:
     '''
     holds the details about the store- worker, positions, special conditions
     '''
-    def __init__(self, store_name, employee_list):
+    def __init__(self, store_name, employee_list, workers_table=[[1,1,1],[1,1,1],[1,1,1],[1,1,1],[1,1,1],[1,1,1],[1,1,1]]):
         self.name = store_name
         self.employees = employee_list
-        self.n_workers_table = [[1,1,1],[1,1,1],[1,1,1],[1,1,1],[1,1,1],[1,1,1],[1,1,1]]
+        self.n_workers_table = workers_table
 
     def add_employee(self, emp):
         for e in emp:
@@ -65,8 +66,14 @@ class Store:
             if i.id == id:
                 return i
 
+    def get_availabilities(self):
+        avail_list = []
+        for e in self.employees:
+            avail_list.append(e.available)
+        return avail_list
 
-
+    def nume_emp(self):
+        return len(self.employees)
 
 
 
