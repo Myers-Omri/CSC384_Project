@@ -13,7 +13,7 @@ def get_the_workers(n):
         for day in range(1,8):
 
             f=1
-            if random.random() > 0.85:
+            if random.random() > 0.95:
                 f=4
             shift_list=[0]
             for shift in range(1,4):

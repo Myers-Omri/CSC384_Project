@@ -35,7 +35,8 @@ class ShopEmployee:
     def update_experience(self, new_exp):
         self.experience = new_exp
 
-
+    def __str__(self):
+        return self.id
 
 
 

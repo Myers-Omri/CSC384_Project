@@ -179,6 +179,7 @@ def make_constraints_d(csp_obj, vars_list, nWorkersMat, day, cstr):
 
         name = 'S{}D{}'.format(s, day+1)
         new_con = Constraint(name, cur_scope)
+
         sat_tuples = create_sat_tuples(cur_scope,s,nWorkersMat[day][s-1],day+1, cstr)
         new_con.add_satisfying_tuples(sat_tuples)
         constraints_list.append(new_con)
@@ -271,10 +272,13 @@ def print_schedule(sol,store):
         row_arr = []
         for d in row:
             ws = ''
-            for w in d[:-1]:
-                ws += get_worker_name(w,store) + ','
-            ws += get_worker_name(d[len(d)-1],store)
-            row_arr.append(ws)
+            if d:
+                for w in d[:-1]:
+                    ws += get_worker_name(w,store) + ','
+                ws += get_worker_name(d[len(d)-1],store)
+                row_arr.append(ws)
+            else:
+                row_arr.append('')
         print (row_format.format(shift, *row_arr))
 
 def fix_to_print(sols,n):
@@ -317,6 +321,7 @@ def run_solver(propType,store, trace=False):
 
     flag = True
     res = False
+    c_stime = time.time()
     while (not res) and flag:
         csp = create_week_model(store)
         print("csp created")
@@ -328,24 +333,29 @@ def run_solver(propType,store, trace=False):
         elif propType == 'FC':
             solver.bt_search(prop_FC)
         elif propType == 'GAC':
+
             res, cons = solver.bt_search(prop_GAC)
         if not res:
             if cons == None:
                 print('finding solution took too long process terminated, now lets try BTS')
-                return
+                return 100.0000001, len(store.get_all_employees())
             c,v = cons
             print("the cons that could not be satisfied is {} and the var is{}".format(c,v))
             print('relax the cons by reducing the num of workers for that shift.')
             required_workers_mat, flag = modify_req_mat(required_workers_mat, c)
             if flag:
                 print("try for less workers in {}".format(c))
-
+    tot_time = time.time() - c_stime
     if not flag and not res:
         print("couldn't find solution")
+
     else:
+        print('the total time is', tot_time)
         tmpsoln = csp.get_soln()
         soln = fix_to_print(tmpsoln, store.nume_emp())
-        print_schedule(soln)
+        print('and the solution is:')
+        print_schedule(soln,store)
+    return tot_time, len(store.get_all_employees())
 
 
 def test_daily(store):
@@ -382,35 +392,10 @@ def test_daily(store):
     print('the total time is', tot_time)
     print('and the solution is:')
     print_schedule(soln,store)
-
+    return tot_time, len(store.get_all_employees())
 
 if __name__ == '__main__':
-    import run_store, random
-    c_date = run_store.date.today()
-    c_month = c_date.month
-    # c_week_day = c_date.weekday()
-    # date = (datetime.month, datetime.day)
-    forecast = ['rainy', 'sunny', 'snowy']
-    nw=10
-    n_workers_table = run_store.total_workers_for(c_month, forecast, nw)
-    print(n_workers_table)
-    n_emp = max([sum(s) for s in n_workers_table])
-    print(n_emp)
-
-    store = run_store.create_random_store('skiPass', 10, n_workers_table)
-    print("the store name is:" + store.name)
-    print("workers list:", store.get_all_employees())
-    print("table of required workers:", store.n_workers_table)
-    print("table of availability: ")
-    for a in store.get_all_employees():
-        print(a.id, "can work on:",[(d[1:]) for d in a.available])
-
-    run_solver('GAC', store)
-    # print (issues_list)
-    test_daily(store)
-    # arr = [[(1,2)]*7]*3
-    # print_schedule(arr)
-
+    print('')
 
 
 
